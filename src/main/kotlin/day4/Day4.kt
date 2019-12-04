@@ -11,40 +11,29 @@ class Day4 {
             .zipWithNext()
             .all { pair ->
                 val isAdjacent = areTwoAdjacentNumbers(pair)
-                val isSmallerThanNext = areTwoNumbersInOrder(pair)
 
                 if (isAdjacent) {
                     numberOfAdjacents += 1
                 }
 
-                isAdjacent || isSmallerThanNext
+                isAdjacent || areTwoNumbersInOrder(pair)
             } && numberOfAdjacents >= 1
     }
 
     fun isValidPasswordExtended(password: Int): Boolean {
-        var numberOfAdjacents = 0
-        val previousGroups = mutableListOf<Pair<Int, Int>>()
+        val digits = getDigits(password)
+        val groups = digits.groupingBy { it }.eachCount()
 
-        val meetsGeneralCriteria = getDigits(password)
+        val meetsGeneralCriteria = digits
             .zipWithNext()
-            .all { pair ->
-                val isAdjacent = areTwoAdjacentNumbers(pair)
-                val isSmallerThanNext = areTwoNumbersInOrder(pair)
+            .all(this::areTwoNumbersInOrder)
 
-                if (isAdjacent && !previousGroups.contains(pair)) {
-                    numberOfAdjacents += 1
-                    previousGroups.add(pair)
-                }
-
-                isAdjacent || isSmallerThanNext
-            }
-
-        return meetsGeneralCriteria && numberOfAdjacents >= 1
+        return meetsGeneralCriteria && groups.any { it.value == 2 }
     }
 
     private fun areTwoAdjacentNumbers(numbers: Pair<Int, Int>) = numbers.first == numbers.second
 
-    private fun areTwoNumbersInOrder(numbers: Pair<Int, Int>) = numbers.first < numbers.second
+    private fun areTwoNumbersInOrder(numbers: Pair<Int, Int>) = numbers.first <= numbers.second
 
     private fun getDigits(number: Int): List<Int> {
         val result = Stack<Int>()
@@ -68,14 +57,4 @@ fun main() {
 
     println(numberOfValidPasswords)
     println(numberOfValidPasswordsExtended)
-
-    /*
-    123444
-
-    12
-    23
-    34
-    44
-    44
-     */
 }
